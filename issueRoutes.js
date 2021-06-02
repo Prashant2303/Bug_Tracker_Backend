@@ -1,55 +1,10 @@
 import express from 'express';
-// import { users, issues } from './data.js';
+import { read, write } from './io.js';
 
 const router = express.Router();
 
-let issues = [
-    {
-      "id": 1,
-      "desc": "On Clicking Delete, the application crashes",
-      "severity": "Critical",
-      "status": "Open",
-      "cdate": "12/02/2021",
-      "rdate": "",
-      "viewed": 15
-    },
-    {
-      "id": 2,
-      "desc": "The heading Add is wrongly displayed as Edit",
-      "severity": "Minor",
-      "cdate": "12/02/2021",
-      "rdate": "03/12/2021",
-      "status": "Closed",
-      "viewed": 16
-    },
-    {
-      "id": 3,
-      "desc": "The payment functionality is missing",
-      "severity": "Major",
-      "status": "In Progress",
-      "cdate": "12/02/2021",
-      "rdate": "",
-      "viewed": 5
-    },
-    {
-      "desc": "On adding to cart, the item does not get added",
-      "severity": "Minor",
-      "status": "Open",
-      "cdate": "12/02/2021",
-      "rdate": "",
-      "id": 4,
-      "viewed": 33
-    },
-    {
-      "desc": "payment issue",
-      "severity": "Major",
-      "status": "Closed",
-      "cdate": "12/02/2021",
-      "rdate": "03/12/2021",
-      "id": 5,
-      "viewed": 9
-    }
-  ]
+let jsonData = read();
+let issues = jsonData.issues;
 
 router.get('/',(req, res)=>{
     console.log('GET /issues 200')
@@ -65,23 +20,23 @@ router.get('/:id',(req, res)=>{
 
 router.delete('/:id',(req, res)=>{
     const { id } = req.params;
-    issues = issues.filter(issue=>issue.id!=id)
-    console.log(`DELETE /issue/${id} 200`)
-    res.status(200).send('Deleted')
+    issues = issues.filter(issue=>issue.id!=id);
+    jsonData.issues = issues;
+    write(jsonData, res, `DELETE /issue/${id} 200`, `DELETE /issue/${id} 500`);
 })
 
 router.put('/:id',(req, res)=>{
     const { id } = req.params;
     let index = issues.findIndex(issue=>issue.id==id);
     issues[index] = req.body;
-    console.log(`PUT /issue/${id} 200`)
-    res.status(200).send(issues[index])
+    jsonData.issues = issues;
+    write(jsonData, res, `PUT /issue/${id} 200`, `PUT /issue/${id} 500`);
 })
 
 router.post('/',(req, res)=>{
-    issues.push(req.body)
-    console.log(`POST /issues 200`)
-    res.status(200).send(req.body);
+    issues.push(req.body);
+    jsonData.issues = issues;
+    write(jsonData, res, `POST /issue 200`, `POST /issue 500`);
 })
 
 export default router;

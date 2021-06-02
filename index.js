@@ -5,7 +5,7 @@ import issueRouter from './issueRoutes.js';
 import userRouter from './userRoutes.js';
 
 const app = express();
-const PORT = 5000;
+const PORT = 3001;
 
 app.use(cors());
 app.use(express.json());
