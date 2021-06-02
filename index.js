@@ -1,20 +1,18 @@
 import express from 'express';
-import { users, issues } from './data.js';
+import cors from 'cors';
 
-import router from './routes.js';
+import issueRouter from './issueRoutes.js';
+import userRouter from './userRoutes.js';
 
 const app = express();
 const PORT = 5000;
 
+app.use(cors());
 app.use(express.json());
-
-app.use('/issues',router);
 
 app.listen(PORT, ()=> {
     console.log(`App running on http://localhost:${PORT}`);
 })
 
-app.get('/users',(req, res)=>{
-    res.status(200).send(users)
-})
-
+app.use('/issues',issueRouter);
+app.use('/users',userRouter);
