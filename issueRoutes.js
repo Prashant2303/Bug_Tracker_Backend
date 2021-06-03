@@ -1,42 +1,91 @@
 import express from 'express';
-import { read, write } from './io.js';
+
+import mongoose from 'mongoose';
+import { Issue } from './model.js';
+
+const uri = "mongodb+srv://Bug_Tracker:Lamb0mongodb@cluster0.zdte4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+// client.connect(err => {
+//   const collection = client.db("test").collection("devices");
+//   // perform actions on the collection object
+//   console.log('Connected');
+//   client.close();
+// });
+
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const con = mongoose.connection
+
+con.on('open', ()=>{
+    console.log('Connected...')
+})
 
 const router = express.Router();
 
-let jsonData = read();
-let issues = jsonData.issues;
-
-router.get('/',(req, res)=>{
-    console.log('GET /issues 200')
-    res.status(200).send(issues)
+router.get('/', async (req, res)=>{
+    try{
+        console.log('GET /issues 200')
+        const dbissues = await Issue.find()
+        console.log(dbissues)
+        res.status(200).json(dbissues)
+    }catch(err){
+        res.send('Error '+err)
+    }
 })
 
-router.get('/:id',(req, res)=>{
+router.get('/:id', async (req, res)=>{
     const { id } = req.params;
-    const issue = issues.find(issue=>issue.id==id)
-    console.log(`GET /issue/${id} 200`)
-    res.status(200).send(issue)
+    try {
+        const issue = await Issue.findById(id);
+        console.log(`GET /issue/${id} 200`)
+        res.status(200).json(issue);
+    } catch (err) {
+        res.status(500).send(err);
+    }
 })
 
-router.delete('/:id',(req, res)=>{
+router.delete('/:id', async (req, res)=>{
     const { id } = req.params;
-    issues = issues.filter(issue=>issue.id!=id);
-    jsonData.issues = issues;
-    write(jsonData, res, `DELETE /issue/${id} 200`, `DELETE /issue/${id} 500`);
+    try {
+        const issue = await Issue.findByIdAndDelete(id);
+        console.log(`DELETE /issue/${id} 200`)
+        res.status(200).json(issue);
+    } catch (err) {
+        res.send(err);
+    }
 })
 
-router.put('/:id',(req, res)=>{
+router.put('/:id', async (req, res)=>{
     const { id } = req.params;
-    let index = issues.findIndex(issue=>issue.id==id);
-    issues[index] = req.body;
-    jsonData.issues = issues;
-    write(jsonData, res, `PUT /issue/${id} 200`, `PUT /issue/${id} 500`);
+    try {
+        await Issue.findByIdAndUpdate(id, req.body);
+        console.log(`PUT /issue/${id} 200`)
+        res.status(200).json(req.body);
+    } catch (err) {
+        res.send(err)
+    }
 })
 
-router.post('/',(req, res)=>{
-    issues.push(req.body);
-    jsonData.issues = issues;
-    write(jsonData, res, `POST /issue 200`, `POST /issue 500`);
+router.post('/', async (req, res)=>{
+    // console.log(typeof req.body.id);
+
+    const newIssue = new Issue({
+        _id: req.body.id,
+        desc: req.body.desc,
+        severity: req.body.severity,
+        status: req.body.status,
+        cdate: req.body.cdate,
+        rdate: req.body.rdate,
+        viewed: req.body.viewed
+    })
+
+    try{
+        const val = await newIssue.save();
+        console.log(`POST /issue 200`)
+        res.status(200).json(val);
+    }catch(err)
+    {
+        res.status(500).send(`Error ${err}`);
+    }
 })
 
 export default router;
