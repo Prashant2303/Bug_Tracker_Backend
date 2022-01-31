@@ -6,13 +6,16 @@ import dotenv from 'dotenv';
 import issueRouter from './routes/issueRoutes.js';
 import userRouter from './routes/userRoutes.js';
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 3001;
-
-app.use(cors());
+dotenv.config();
 app.use(express.json());
+app.use(cors());
+
+app.get('/', (req, res) => {
+    res.send('Hello to Bug Tracker API');
+})
+
+const PORT = process.env.PORT || 3001;
 
 mongoose.connect(process.env.uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`)))
