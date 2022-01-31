@@ -1,19 +1,6 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import { Issue } from './model.js';
+import Issue from '../models/Issue.js';
 
-const uri = "mongodb+srv://Bug_Tracker:Lamb0mongodb@cluster0.zdte4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-const con = mongoose.connection
-
-con.on('open', ()=>{
-    console.log('Connected...')
-})
-
-const router = express.Router();
-
-router.get('/', async (req, res)=>{
+export const getIssues = async (req, res)=>{
     try{
         const issues = await Issue.find()
         console.log('GET /issues 200')
@@ -21,9 +8,9 @@ router.get('/', async (req, res)=>{
     }catch(err){
         res.status(500).send('Error '+err)
     }
-})
+}
 
-router.get('/:id', async (req, res)=>{
+export const getIssueById = async (req, res)=>{
     const { id } = req.params;
     try {
         const issue = await Issue.findById(id);
@@ -32,9 +19,9 @@ router.get('/:id', async (req, res)=>{
     } catch (err) {
         res.status(500).send(err);
     }
-})
+}
 
-router.delete('/:id', async (req, res)=>{
+export const deleteIssue = async (req, res)=>{
     const { id } = req.params;
     try {
         const issue = await Issue.findByIdAndDelete(id);
@@ -43,9 +30,9 @@ router.delete('/:id', async (req, res)=>{
     } catch (err) {
         res.status(500).send(err);
     }
-})
+}
 
-router.put('/:id', async (req, res)=>{
+export const updateIssue = async (req, res)=>{
     const { id } = req.params;
     try {
         await Issue.findByIdAndUpdate(id, req.body);
@@ -54,9 +41,9 @@ router.put('/:id', async (req, res)=>{
     } catch (err) {
         res.status(500).send(err)
     }
-})
+}
 
-router.post('/', async (req, res)=>{
+export const createIssue = async (req, res)=>{
     // console.log(typeof req.body.id);
 
     const newIssue = new Issue({
@@ -78,6 +65,4 @@ router.post('/', async (req, res)=>{
     {
         res.status(500).send(`Error ${err}`);
     }
-})
-
-export default router;
+}
