@@ -44,8 +44,6 @@ export const updateIssue = async (req, res)=>{
 }
 
 export const createIssue = async (req, res)=>{
-    // console.log(typeof req.body.id);
-
     const newIssue = new Issue({
         _id: req.body.id,
         id: req.body.id,
@@ -54,7 +52,11 @@ export const createIssue = async (req, res)=>{
         status: req.body.status,
         cdate: req.body.cdate,
         rdate: req.body.rdate,
-        viewed: req.body.viewed
+        viewed: req.body.viewed,
+        title: req.body.title,
+        creatorName: req.body.creatorName,
+        creatorId: req.body.creatorId,
+        selectedFile: req.body.selectedFile
     })
 
     try{
