@@ -6,7 +6,7 @@ export const getIssues = async (req, res)=>{
         console.log('GET /issues 200')
         res.status(200).json(issues)
     }catch(err){
-        res.status(500).send('Error '+err)
+        res.status(500).send(err)
     }
 }
 
@@ -24,7 +24,12 @@ export const getIssueById = async (req, res)=>{
 export const deleteIssue = async (req, res)=>{
     const { id } = req.params;
     try {
-        const issue = await Issue.findByIdAndDelete(id);
+        const issue = await Issue.findById(id);
+        if(req.userId === issue.creatorId)
+            await Issue.findByIdAndDelete(id);
+        else
+            res.status(200).json('Unauthorized user');
+
         console.log(`DELETE /issue/${id} 200`)
         res.status(200).json(issue);
     } catch (err) {
@@ -44,8 +49,6 @@ export const updateIssue = async (req, res)=>{
 }
 
 export const createIssue = async (req, res)=>{
-    // console.log(typeof req.body.id);
-
     const newIssue = new Issue({
         _id: req.body.id,
         id: req.body.id,
@@ -54,7 +57,11 @@ export const createIssue = async (req, res)=>{
         status: req.body.status,
         cdate: req.body.cdate,
         rdate: req.body.rdate,
-        viewed: req.body.viewed
+        viewed: req.body.viewed,
+        title: req.body.title,
+        creatorName: req.body.creatorName,
+        creatorId: req.body.creatorId,
+        selectedFile: req.body.selectedFile
     })
 
     try{
@@ -63,6 +70,6 @@ export const createIssue = async (req, res)=>{
         res.status(200).json(val);
     }catch(err)
     {
-        res.status(500).send(`Error ${err}`);
+        res.status(500).send(err);
     }
 }

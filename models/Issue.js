@@ -6,9 +6,13 @@ const issueSchema = mongoose.Schema({
     desc: String,
     severity: String,
     status: String,
+    title: String,
+    creatorName: String,
+    creatorId: String,
     cdate: String,
     rdate: String,
-    viewed: Number
+    viewed: Number,
+    selectedFile: String
 })
 
 const Issue = mongoose.model('Issue', issueSchema);
