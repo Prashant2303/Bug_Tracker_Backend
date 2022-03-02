@@ -6,7 +6,7 @@ export const getIssues = async (req, res)=>{
         console.log('GET /issues 200')
         res.status(200).json(issues)
     }catch(err){
-        res.status(500).send('Error '+err)
+        res.status(500).send(err)
     }
 }
 
@@ -24,7 +24,12 @@ export const getIssueById = async (req, res)=>{
 export const deleteIssue = async (req, res)=>{
     const { id } = req.params;
     try {
-        const issue = await Issue.findByIdAndDelete(id);
+        const issue = await Issue.findById(id);
+        if(req.userId === issue.creatorId)
+            await Issue.findByIdAndDelete(id);
+        else
+            res.status(200).json('Unauthorized user');
+
         console.log(`DELETE /issue/${id} 200`)
         res.status(200).json(issue);
     } catch (err) {
@@ -65,6 +70,6 @@ export const createIssue = async (req, res)=>{
         res.status(200).json(val);
     }catch(err)
     {
-        res.status(500).send(`Error ${err}`);
+        res.status(500).send(err);
     }
 }
